@@ -21,7 +21,7 @@ process_option(Option, NextState):-
     (Option == 1 -> NextState = game, !;
     (Option == 0 -> NextState = exit, !)).
 
-process_option(Option, NextState):- step_menu(NextState).
+process_option(_Option, NextState):- step_menu(NextState).
 
 %! print_menu
 %

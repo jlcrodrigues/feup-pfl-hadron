@@ -1,3 +1,4 @@
+:-ensure_loaded('board.pl').
 
 step_game(NextState):-
     NextState = menu,

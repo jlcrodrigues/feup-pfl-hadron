@@ -19,11 +19,17 @@ init_board(Board, BoardSize):-
 % @param Board List of Lists that represents the board.
 print_board(Board):-
     print_board_line(Board, top_left, top, top_right), nl,
-    [Head | Tail] = Board, print_board_row(Head), nl, 
-    (foreach(Row, Tail), param(Board) do
-        print_board_line(Board, left_side, mid, right_side), nl, print_board_row(Row), nl
+    [Head | Tail] = Board, print_board_row(Head), write(' a'), nl, 
+    length(Board, Length),
+    (foreach(Row, Tail), for(X, 1, Length - 1), param(Board) do
+        print_board_line(Board, left_side, mid, right_side), nl,
+        char_code('a', A),
+        I is A + X,
+        char_code(Idx, I),
+        print_board_row(Row), pad, write(Idx), nl
     ),
-    print_board_line(Board, bot_left, bot, bot_right), nl.
+    print_board_line(Board, bot_left, bot, bot_right), nl,
+    print_col_index(Board).
 
 %! print_board_line(+Board, +Left, +Mid, +Right)
 %
@@ -58,6 +64,17 @@ print_symbol(Symbol):-
     (Symbol == 1 -> write('\033\[31mO\033\[0m'), !; %red
     (Symbol == 2 -> write('\033\[34mO\033\[0m'), !))). %blue
 
+%! print_col_index(+Board)
+%
+% Print the column index for the board.
+%
+% @param Board List of Lists that represents the board.
+print_col_index(Board):-
+    length(Board, Length),
+    (for(X, 1, Length) do
+        pad, pad, write(X), pad
+    ),
+    nl.
 
 %% Special characters
 %

@@ -25,4 +25,5 @@ play:-
 % @param State The current execution state.
 play(State):-
     step(State, NextState),
+    write(NextState),
     play(NextState).

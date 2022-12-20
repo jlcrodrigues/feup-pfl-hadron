@@ -36,4 +36,4 @@ print_menu:-
     write('| | | | |_| | |_| | | | || | | | |      \n'),
     write('\\_| |_/\\__,_|\\__,_|_| \\___/|_| |_|   \n\n'),
     write('\t1. Play'), nl,
-    write('\t0. Exit'), nl.
+    write('\t0. Exit'), nl, nl.

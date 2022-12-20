@@ -11,6 +11,8 @@
 step_game(NextState):-
     initial_state(5, GameState), %todo board size
     game_loop(GameState),
+    write('Press any key. '),
+    read(_),
     NextState = menu.
 
 %! initial_state(+Size, -GameState)
@@ -23,20 +25,6 @@ initial_state(Size, GameState):-
     init_board(Board, Size),
     GameState = [1, Board].
 
-%! display_game(+GameState)
-%
-% Display the current game status, including board and turn.
-%
-% @param GameState List that holds the current game state.
-display_game(GameState):-
-    print_break,
-    [Player, Board | _] = GameState,
-    print_break,
-    print_board(Board), nl,
-    (Player == 1 -> write('\033\[31mPlayer 1\033\[0m'); %red
-    (Player == 2 -> write('\033\[34mPlayer 2\033\[0m'))). %blue
-    write(' playing: ').
-
 %! game_loop(+GameState)
 %
 % Game main loop.
@@ -45,7 +33,43 @@ display_game(GameState):-
 game_loop(GameState):-
     display_game(GameState),
     get_move(GameState, NextGameState),
-    game_loop(NextGameState).
+    valid_moves(NextGameState, ListOfMoves),
+    game_over(NextGameState, _Winner, ListOfMoves).
+
+%! display_game(+GameState)
+%
+% Display the current game status, including board and turn.
+%
+% @param GameState List that holds the current game state.
+display_game(GameState):-
+    [Player, Board | _] = GameState,
+    print_break,
+    print_board(Board), nl,
+    (Player == 1 -> write('\033\[31mPlayer 1 playing\033\[0m'); %red
+    (Player == 2 -> write('\033\[34mPlayer 2 playing\033\[0m'))). %blue
+
+%! game_over(+GameState, -Winner, +ListOfMoves)
+% 
+% Check if the game is over.
+% For the game to be over, there can not exist any valid move left.
+%
+% @param GameState List that holds the current game state.
+% @param ListOfMoves Previously calculated list of allowed moves.
+game_over(GameState, Winner, ListOfMoves):-
+    ListOfMoves == [],
+    [Player, Board | _] = GameState,
+    next_player(Player, Winner),
+    print_break,
+    print_board(Board), nl,
+    nl,
+    (Winner == 1 -> write('\033\[31mPlayer 1 wins!!!\033\[0m'); %red
+    (Winner == 2 -> write('\033\[34mPlayer 2 wins!!!\033\[0m'))), %blue
+    nl, nl.
+
+% In case the game is not over, this predicate calls game_loop so the game goes on.
+game_over(GameState, _Winner, ListOfMoves):-
+    ListOfMoves \== [],
+    game_loop(GameState).
 
 %! get_move(+GameState, -NewGameState)
 %
@@ -56,6 +80,7 @@ game_loop(GameState):-
 % @param NewGameState List that holds the game state after moving.
 get_move(GameState, NewGameState):-
     valid_moves(GameState, ListOfMoves),
+    ListOfMoves \== [],
     get_move(GameState, NewGameState, ListOfMoves).
 
 %! get_move(+GameState, -NewGameState, -ListOfMoves)

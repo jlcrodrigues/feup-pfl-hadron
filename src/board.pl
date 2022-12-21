@@ -18,18 +18,18 @@ init_board(Board, BoardSize):-
 %
 % @param Board List of Lists that represents the board.
 print_board(Board):-
-    print_board_line(Board, top_left, top, top_right), nl,
-    [Head | Tail] = Board, print_board_row(Head), write(' a'), nl, 
+    center, print_board_line(Board, top_left, top, top_right), nl,
+    [Head | Tail] = Board, center, print_board_row(Head), write(' a'), nl, 
     length(Board, Length),
     (foreach(Row, Tail), for(X, 1, Length - 1), param(Board) do
-        print_board_line(Board, left_side, mid, right_side), nl,
+        center, print_board_line(Board, left_side, mid, right_side), nl,
         char_code('a', A),
         I is A + X,
         char_code(Idx, I),
-        print_board_row(Row), pad, write(Idx), nl
+        center, print_board_row(Row), pad, write(Idx), nl
     ),
-    print_board_line(Board, bot_left, bot, bot_right), nl,
-    print_col_index(Board).
+    center, print_board_line(Board, bot_left, bot, bot_right), nl,
+    center, print_col_index(Board).
 
 %! print_board_line(+Board, +Left, +Mid, +Right)
 %
@@ -62,7 +62,8 @@ print_board_row(Row):-
 print_symbol(Symbol):-
     (Symbol == 0 -> write(' '), !;
     (Symbol == 1 -> write('\033\[31mO\033\[0m'), !; %red
-    (Symbol == 2 -> write('\033\[34mO\033\[0m'), !))). %blue
+    (Symbol == 2 -> write('\033\[34mO\033\[0m'), !; %blue
+    (Symbol == 3 -> write('\033\[32m'), check, write('\033\[0m'), !)))). %green check
 
 %! print_col_index(+Board)
 %
@@ -82,6 +83,9 @@ print_col_index(Board):-
 %
 pad:-
     write(' ').
+
+center:-
+    write('\t\t    ').
 
 top_left :-
 	write('\x250C\').
@@ -115,3 +119,6 @@ vert :-
 
 horiz :-
 	write('\x2500\').
+
+check :-
+	write('\x2713\').

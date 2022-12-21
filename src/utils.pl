@@ -3,7 +3,7 @@
 % Used to print multiple new lines to the screen in order to change between pages.
 %
 print_break:-
-    count(_, 0, 20) do nl.
+    count(_, 0, 30) do nl.
 
 %! count2(+X, +Y, +List, -CountX, -CountY)
 %

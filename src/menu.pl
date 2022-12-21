@@ -21,7 +21,8 @@ step_menu(NextState):-
 process_option(Option, NextState):-
     (Option == 1 -> NextState = game, !;
     (Option == 2 -> about;
-    (Option == 0 -> NextState = exit, !))).
+    (Option == 3 -> NextState = settings;
+    (Option == 0 -> NextState = exit, !)))).
 
 process_option(_Option, NextState):- step_menu(NextState).
 
@@ -41,8 +42,13 @@ print_menu:-
     write('Jose Luis Rodrigues    up202008462\n\n\n'),
     write('\t1. Play'), nl,
     write('\t2. About'), nl,
+    write('\t3. Settings'), nl,
     write('\t0. Exit'), nl, nl.
 
+%! about
+%
+% Displays the about page.
+%
 about:-
     print_break,
     write('\t\t\tAbout\t\n\n'),

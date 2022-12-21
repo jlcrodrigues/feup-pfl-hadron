@@ -9,7 +9,8 @@
 %
 % @param NextState To be filled with the next execution state.
 step_game(NextState):-
-    initial_state(3, GameState), %todo board size
+    board_size(BoardSize),
+    initial_state(BoardSize, GameState), %todo board size
     game_loop(GameState),
     write('Press any key. '),
     read(_),

@@ -1,4 +1,5 @@
 :-ensure_loaded('menu.pl').
+:-ensure_loaded('settings.pl').
 :-ensure_loaded('game.pl').
 
 % step(+State, -NextState)
@@ -9,6 +10,7 @@
 % @param State Current execution state.
 % @param NextState To be filled with the next execution state.
 step(menu, NextState):- step_menu(NextState).
+step(settings, NextState):- step_settings(NextState).
 step(game, NextState):- step_game(NextState).
 
 %! play
@@ -24,5 +26,8 @@ play:-
 %
 % @param State The current execution state.
 play(State):-
+    State \== exit,
     step(State, NextState),
     play(NextState).
+
+play(exit).

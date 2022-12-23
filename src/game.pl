@@ -1,7 +1,11 @@
 :-use_module(library(lists)).
 
 :-ensure_loaded('board.pl').
+:-ensure_loaded('bot.pl').
 :-ensure_loaded('utils.pl').
+
+% define moving predicate for each player
+:-dynamic move_term/2.
 
 %! step_game(-NextState)
 %
@@ -24,18 +28,29 @@ step_game(NextState):-
 % @param GameState List that holds the current game state.
 initial_state(Size, GameState):-
     init_board(Board, Size),
+    retractall(move_term),
+    asserta(move_term(1, get_move_user)),
+    asserta(move_term(2, get_move_bot)),
     GameState = [1, Board].
 
 %! game_loop(+GameState)
 %
 % Game main loop.
+% For the first iteration, it gets the valid move list and calls game_loop/2, which takes over from that.
+% This is done to avoid calculating the list more times then necessary.
 %
 % @param GameState List that holds the current game state.
 game_loop(GameState):-
+    valid_moves(GameState, ListOfMoves),
+    game_loop(GameState, ListOfMoves).
+
+% same as game_loop, but assumes the move list is already calculated
+game_loop(GameState, ListOfMoves):-
     display_game(GameState),
-    get_move(GameState, NextGameState),
-    valid_moves(NextGameState, ListOfMoves),
-    game_over(NextGameState, _Winner, ListOfMoves).
+    get_move(ListOfMoves, GameState, Move),
+    move(GameState, Move, NewGameState),
+    valid_moves(NewGameState, NewListOfMoves),
+    game_over(NewGameState, _Winner, NewListOfMoves).
 
 %! display_game(+GameState)
 %
@@ -70,32 +85,39 @@ game_over(GameState, Winner, ListOfMoves):-
 % In case the game is not over, this predicate calls game_loop so the game goes on.
 game_over(GameState, _Winner, ListOfMoves):-
     ListOfMoves \== [],
-    game_loop(GameState).
+    game_loop(GameState, ListOfMoves).
 
 %! get_move(+GameState, -NewGameState)
 %
-% Ask for a move and change game state accordingly.
-% This predicate gets the list of valid moves and then calls get_move\3 to avoid repetition.
+% Gets the next move, either from player or bot.
+% To distinguish them, it queries what is the current move_term and calls it.
 %
+% @param ListOfMoves Previously calculated list of allowed moves.
 % @param GameState List that holds the current game state.
-% @param NewGameState List that holds the game state after moving.
-get_move(GameState, NewGameState):-
-    valid_moves(GameState, ListOfMoves),
+% @param Move User move parsed to proper int board indexes.
+get_move(ListOfMoves, GameState, Move):-
     ListOfMoves \== [],
-    get_move(GameState, NewGameState, ListOfMoves).
+    [Player | _] = GameState,
+    move_term(Player, MoveTerm),
+
+    call(MoveTerm, ListOfMoves, GameState, Move).
 
 %! get_move(+GameState, -NewGameState, -ListOfMoves)
 %
-% Reads a move from user input.
-% Sends the input to check_move\4 so it can validate or loop.
+% Reads a move from user input. Loops until it finds a valid move.
 %
-% @param GameState List that holds the current game state.
-% @param NewGameState List that holds the game state after moving.
 % @param ListOfMoves Previously calculated list of allowed moves.
-get_move(GameState, NewGameState, ListOfMoves):-
+% @param _GameState This is being ignored but we want the same prototype as get_move_bot.
+% @param Move User move parsed to proper int board indexes.
+get_move_user(ListOfMoves, _GameState, Move):-
     read(MoveChar),
     parse_move(MoveChar, Move),
-    check_move(GameState, Move, NewGameState, ListOfMoves).
+    member(Move, ListOfMoves),
+    !.
+
+% Used to backtrack.
+get_move_user(ListOfMoves, _GameState, Move):-
+    get_move_user(ListOfMoves, _, Move).
 
 %! parse_move(+MoveChar, -Move)
 %
@@ -110,23 +132,6 @@ parse_move(MoveChar, Move):-
     char_code(RowChar, RowCode), char_code(ColChar, ColCode), 
     Row is RowCode - A, Col is ColCode - One,
     Move = [Row, Col].
-
-%! check_move(+GameState, +Move, -NewGameState, -ListOfMoves)
-%
-% Returns true when a valid move is found and backtracks to get_move is the move was invalid.
-%
-% @param GameState List that holds the current game state.
-% @param Move Move to be validated.
-% @param NewGameState List that holds the game state after moving.
-% @param ListOfMoves Previously calculated list of allowed moves.
-check_move(GameState, Move, NewGameState, ListOfMoves):-
-    member(Move, ListOfMoves),
-    move(GameState, Move, NewGameState),
-    !.
-
-% Used to backtrack when the move is not valid.
-check_move(GameState, _Move, NewGameState, ListOfMoves):-
-    get_move(GameState, NewGameState, ListOfMoves).
 
 %! move(+GameState, +Move, -NewGameState)
 %

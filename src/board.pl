@@ -61,8 +61,8 @@ print_board_row(Row):-
 % @param Symbol Either 0, 1 or 2 for empty, player 1 and player 2, respectively.
 print_symbol(Symbol):-
     (Symbol == 0 -> write(' '), !;
-    (Symbol == 1 -> write('\033\[31mO\033\[0m'), !; %red
-    (Symbol == 2 -> write('\033\[34mO\033\[0m'), !; %blue
+    (Symbol == 1 -> write('\033\[31m'), player, write('\033\[0m'), !; %red
+    (Symbol == 2 -> write('\033\[34m'), player, write('\033\[0m'), !; %blue
     (Symbol == 3 -> write('\033\[32m'), check, write('\033\[0m'), !)))). %green check
 
 %! print_col_index(+Board)
@@ -122,3 +122,6 @@ horiz :-
 
 check :-
 	write('\x2713\').
+
+player :-
+	write('\x25ef\').

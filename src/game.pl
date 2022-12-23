@@ -28,10 +28,48 @@ step_game(NextState):-
 % @param GameState List that holds the current game state.
 initial_state(Size, GameState):-
     init_board(Board, Size),
-    retractall(move_term),
-    asserta(move_term(1, get_move_user)),
-    asserta(move_term(2, get_move_bot)),
+    select_game_mode,
     GameState = [1, Board].
+
+% select_game_mode
+%
+% Select the game mode.
+select_game_mode:-
+    print_break,
+    write('\tSelect game mode:'), nl, nl,
+    write('\t1.Player vs Player'), nl,
+    write('\t2.CPU vs Player'), nl,
+    write('\t3.CPU vs CPU'), nl, nl,
+    read_number_between(1, 3, Mode),
+    retractall(move_term),
+    retractall(difficulty),
+    select_game_mode(Mode).
+
+% Player vs player
+select_game_mode(1):-
+    asserta(move_term(1, get_move_user)),
+    asserta(move_term(2, get_move_user)).
+
+% CPU vs player
+select_game_mode(2):-
+    write('Choose CPU difficulty (1-)'), nl,
+    read_number_between(1, 1, Difficulty),
+    random(1, 3, BotPlayer),
+    next_player(BotPlayer, UserPlayer),
+    asserta(difficulty(BotPlayer, Difficulty)),
+    asserta(move_term(BotPlayer, get_move_bot)),
+    asserta(move_term(UserPlayer, get_move_user)).
+
+% CPU vs CPU
+select_game_mode(3):-
+    write('Choose CPU difficulty for \033\[31mRed\033\[0m (1-)'), nl,
+    read_number_between(1, 1, Difficulty1),
+    write('Choose CPU difficulty for \033\[34mBlue\033\[0m (1-)'), nl,
+    read_number_between(1, 1, Difficulty2),
+    asserta(difficulty(1, Difficulty1)),
+    asserta(difficulty(2, Difficulty2)),
+    asserta(move_term(1, get_move_bot)),
+    asserta(move_term(2, get_move_bot)).
 
 %! game_loop(+GameState)
 %

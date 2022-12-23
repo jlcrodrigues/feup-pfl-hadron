@@ -26,3 +26,16 @@ count2(X, Y, List, CountX, CountY):-
 count2(_X, _Y, [], CountX, CountY):-
     CountX = 0, CountY = 0.
 
+% read_number_between(+Min, +Max, -Number)
+%
+% Read a number from the user. Loop until its between bounds [Min, Max].
+%
+% @param Min Minimum bound (closed).
+% @param Max Maximum bound (closed).
+% @param Number Number read from user input.
+read_number_between(Min, Max, Number):-
+    repeat,
+    read(Number),
+    catch(char_code(_, Number), _, fail),
+    Number >= Min, Number =< Max.
+

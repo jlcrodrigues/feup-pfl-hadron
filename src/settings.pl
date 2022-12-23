@@ -42,10 +42,7 @@ print_settings:-
 % Asks for a user for a new board size. Loops while the input is not valid.
 %
 change_board_size:-
-    repeat,
-    nl, write('Size of the board (N*N)'),
-    read(Size),
-    catch(char_code(_, Size), _, fail),
-    Size > 1, Size < 11,
+    nl, write('Size of the board (N*N)'), nl,
+    read_number_between(2, 15, Size),
     retractall(board_size(_)),
     asserta(board_size(Size)).

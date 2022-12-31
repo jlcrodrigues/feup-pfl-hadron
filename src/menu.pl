@@ -69,6 +69,8 @@ about:-
     SampleBoard = [[0,3,0], [2,3,1], [0,3,0]],
     print_board(SampleBoard), nl, nl,
 
+    write('If  you are  uncertain of what to do,  you can always'), nl,
+    write('type help during the game.'), nl,
     write('Hadron was created by Mark Steere,\nhttps://www.marksteeregames.com'), nl, nl,
 
 

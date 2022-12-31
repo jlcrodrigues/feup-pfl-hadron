@@ -151,6 +151,7 @@ get_move(ListOfMoves, GameState, Move):-
 % @param Move User move parsed to proper int board indexes.
 get_move_user(ListOfMoves, _GameState, Move):-
     read(MoveChar),
+    move_options(MoveChar, ListOfMoves),
     parse_move(MoveChar, Move),
     member(Move, ListOfMoves),
     !.
@@ -166,6 +167,7 @@ get_move_user(ListOfMoves, _GameState, Move):-
 % @param MoveChar Move from user input.
 % @param Move User move parsed to proper int board indexes.
 parse_move(MoveChar, Move):-
+    \+ integer(MoveChar),
     atom_chars(MoveChar, MoveList),
     [RowChar, ColChar | _] = MoveList,
     char_code('a', A), char_code('1', One),
@@ -186,3 +188,42 @@ move(GameState, Move, NewGameState):-
     next_player(Player, NextPlayer),
     move_board(Board, Move, NextBoard, Player),
     NewGameState = [NextPlayer, NextBoard].
+
+% Quit the execution of the game
+move_options('quit', _):- break.
+
+%! move_options('help', ListOfMoves).
+%
+% Display help menu to the user mid game.
+% 
+% @param ListOfMoves list of valid moves (will be displayed).
+move_options('help', ListOfMoves):-
+    nl,
+    write('These are the availabe moves at the moment [row, col]:'), nl, nl,
+    print_moves(ListOfMoves), nl, nl,
+    write('Write `quit` to exit the game.'), nl, nl.
+
+% Succeeds if the option is not defined.
+move_options(Option, _):-
+    Option \== 'quit', 
+    Option \== 'help'.
+
+%! print_moves(ListOfMoves).
+%
+% Recursively loop and write a list of moves.
+%
+% @param ListOfMoves list of valid moves (will be displayed).
+print_moves(ListOfMoves):-
+    ListOfMoves \== [],
+    [Move | Remaining] = ListOfMoves,
+    [RowN , ColN | _] = Move,
+
+    Col is ColN + 1,
+    char_code('a', A),
+    RowCode is A + RowN,
+    char_code(Row, RowCode),
+
+    write(Row), write(Col), write(' '),
+    print_moves(Remaining).
+
+print_moves([]).
